@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCG Vaults - Premium Pokémon Cards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Global Background - Base Gradient */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #4C1D95 0%, #3B1E6B 20%, #2D1B55 40%, #141414 70%, #0A0A0A 100%);
+            background-attachment: fixed;
+            color: #FFFFFF;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Dynamic parallax overlay that darkens with scroll */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(180deg,
+                rgba(76, 29, 149, var(--scroll-overlay, 0)) 0%,
+                rgba(59, 30, 107, var(--scroll-overlay, 0)) 20%,
+                rgba(45, 27, 85, var(--scroll-overlay, 0)) 40%,
+                rgba(20, 20, 20, var(--scroll-overlay, 0)) 70%,
+                rgba(10, 10, 10, var(--scroll-overlay, 0)) 100%);
+            pointer-events: none;
+            z-index: 1;
+            transition: all 0.1s ease-out;
+        }
+
+
+
+
+
+        @keyframes floatBubbles {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-15px, -25px) rotate(90deg); }
+            50% { transform: translate(15px, -15px) rotate(180deg); }
+            75% { transform: translate(-10px, -20px) rotate(270deg); }
+        }
+
+        /* Content layers above background */
+        header, main, footer, section {
+            position: relative;
+            z-index: 10;
+        }
+
+        .gradient-primary {
+            background: linear-gradient(135deg, #3B82F6 0%, #9333EA 100%);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3B82F6 0%, #9333EA 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .hero {
+            position: relative;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            background: transparent;
+            overflow: hidden;
+        }
+
+
+
+        .hero-container {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 4rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-text {
+            text-align: left;
+        }
+
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-image-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(31, 41, 55, 0.6) 100%);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .hero-columns {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+
+            .hero-text {
+                text-align: center;
+            }
+
+            .hero-image-placeholder {
+                width: 100%;
+                aspect-ratio: 16/9;
+            }
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .animate-scroll {
+            animation: scroll 50s linear infinite;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .hero-image-placeholder {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .product-card {
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid rgba(75, 85, 99, 0.2);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .category-tile {
+            position: relative;
+            aspect-ratio: 16/9;
+            border-radius: 1rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(31, 41, 55, 0.8) 100%);
+        }
+
+        .category-tile:hover {
+            transform: scale(1.02);
+        }
+
+        .trust-badge {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .trust-badge:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-4px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+    <!-- Floating Particles Layer -->
+    <div class="floating-particles"></div>
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-black/90 backdrop-blur-lg border-b border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                        TCG Vaults
+                    </h1>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Home</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Singles</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Slabs</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Sealed Product</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Contact</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <input type="search" placeholder="Search cards..."
+                           class="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 w-64">
+                    <div class="relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8m-8 0v-2m8 2v-2"/>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <!-- Left Column: Text and Buttons (60%) -->
+            <div class="hero-content">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent leading-tight">
+                    Premium Pokémon Cards<br>
+                    <span class="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Authentic & Verified</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
+                    Discover rare singles, pristine slabs, and exclusive sealed products. Plus get access to our exclusive PSA submission service at rates not available to the public.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#" class="btn btn-primary text-lg px-8 py-4">
+                        Shop Collection
+                    </a>
+                    <a href="#" class="btn btn-secondary text-lg px-8 py-4">
+                        Grading Guide
+                    </a>
+                </div>
+            </div>
+
+
+                <!-- Right Column: Single Image Placeholder (40%) -->
+                <div class="hero-image">
+                    <div class="hero-image-placeholder">
+                        <svg class="w-20 h-20 text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-gray-400 text-center text-sm font-medium">
+                            Image Placeholder
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Grid -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                    Shop by Category
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Discover our curated collection of authentic Pokémon cards and products
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Singles -->
+                <div class="category-tile">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Singles</h3>
+                        <p class="text-gray-300 text-sm">Individual cards from all sets</p>
+                    </div>
+                </div>
+
+                <!-- Graded Slabs -->
+                <div class="category-tile">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Graded Slabs</h3>
+                        <p class="text-gray-300 text-sm">PSA & BGS graded cards</p>
+                    </div>
+                </div>
+
+                <!-- Booster Packs -->
+                <div class="category-tile">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Booster Packs</h3>
+                        <p class="text-gray-300 text-sm">Fresh sealed booster packs</p>
+                    </div>
+                </div>
+
+                <!-- Elite Trainer Boxes -->
+                <div class="category-tile">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Elite Trainer Boxes</h3>
+                        <p class="text-gray-300 text-sm">Complete ETB collections</p>
+                    </div>
+                </div>
+
+                <!-- Booster Boxes -->
+                <div class="category-tile">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Booster Boxes</h3>
+                        <p class="text-gray-300 text-sm">Sealed booster boxes</p>
+                    </div>
+                </div>
+
+                <!-- Sealed Bundles -->
+                <div class="category-tile">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Sealed Bundles</h3>
+                        <p class="text-gray-300 text-sm">Curated sealed product bundles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                    Why Choose TCG Vaults?
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Your trusted partner in the Pokémon card collecting journey
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Authenticity -->
+                <div class="trust-badge">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Authenticity Guaranteed</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Every card is carefully authenticated by our expert team using industry-standard verification methods.
+                    </p>
+                </div>
+
+                <!-- Grading -->
+                <div class="trust-badge">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">PSA Submission Service</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        We handle PSA submissions with professional prep and exclusive rates not available to the public. Plus get expert grading tips from our team.
+                    </p>
+                </div>
+
+                <!-- Shipping -->
+                <div class="trust-badge">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Fast & Secure Shipping</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Your cards are packaged with care and shipped quickly with full insurance and tracking.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Pokemon Items -->
+    <section class="py-12 bg-black/20 backdrop-blur-sm border-y border-gray-800/50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-3 bg-orange-400 rounded-full animate-pulse"></div>
+                <h3 class="text-lg font-semibold text-white">Trending Pokemon Items</h3>
+            </div>
+            <div class="flex overflow-hidden">
+                <div class="flex animate-scroll space-x-8">
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-blue-500/20 rounded border border-blue-500/30 flex items-center justify-center">
+                            <span class="text-xs text-blue-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Charizard ex 151</span>
+                        <span class="text-orange-400 font-semibold">Trending</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-purple-500/20 rounded border border-purple-500/30 flex items-center justify-center">
+                            <span class="text-xs text-purple-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Umbreon VMAX Alt Art</span>
+                        <span class="text-orange-400 font-semibold">Hot</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-yellow-500/20 rounded border border-yellow-500/30 flex items-center justify-center">
+                            <span class="text-xs text-yellow-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Pikachu Van Gogh</span>
+                        <span class="text-orange-400 font-semibold">New</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-red-500/20 rounded border border-red-500/30 flex items-center justify-center">
+                            <span class="text-xs text-red-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Base Set Booster Box</span>
+                        <span class="text-orange-400 font-semibold">Rare</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-green-500/20 rounded border border-green-500/30 flex items-center justify-center">
+                            <span class="text-xs text-green-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Rayquaza VMAX Alt Art</span>
+                        <span class="text-orange-400 font-semibold">Rising</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-indigo-500/20 rounded border border-indigo-500/30 flex items-center justify-center">
+                            <span class="text-xs text-indigo-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Lugia Neo Genesis</span>
+                        <span class="text-orange-400 font-semibold">Classic</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-pink-500/20 rounded border border-pink-500/30 flex items-center justify-center">
+                            <span class="text-xs text-pink-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Mew VMAX Alt Art</span>
+                        <span class="text-orange-400 font-semibold">Popular</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-cyan-500/20 rounded border border-cyan-500/30 flex items-center justify-center">
+                            <span class="text-xs text-cyan-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Celebrations ETB</span>
+                        <span class="text-orange-400 font-semibold">Sought</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-teal-500/20 rounded border border-teal-500/30 flex items-center justify-center">
+                            <span class="text-xs text-teal-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Alakazam ex 151</span>
+                        <span class="text-orange-400 font-semibold">Fresh</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-orange-500/20 rounded border border-orange-500/30 flex items-center justify-center">
+                            <span class="text-xs text-orange-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Japanese Base Set</span>
+                        <span class="text-orange-400 font-semibold">Import</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-violet-500/20 rounded border border-violet-500/30 flex items-center justify-center">
+                            <span class="text-xs text-violet-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Gengar VMAX Alt Art</span>
+                        <span class="text-orange-400 font-semibold">Spooky</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-emerald-500/20 rounded border border-emerald-500/30 flex items-center justify-center">
+                            <span class="text-xs text-emerald-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Leafeon VMAX Alt Art</span>
+                        <span class="text-orange-400 font-semibold">Nature</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-rose-500/20 rounded border border-rose-500/30 flex items-center justify-center">
+                            <span class="text-xs text-rose-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Espeon V Alt Art</span>
+                        <span class="text-orange-400 font-semibold">Psychic</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-amber-500/20 rounded border border-amber-500/30 flex items-center justify-center">
+                            <span class="text-xs text-amber-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Gold Star Pokemon</span>
+                        <span class="text-orange-400 font-semibold">Vintage</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-lime-500/20 rounded border border-lime-500/30 flex items-center justify-center">
+                            <span class="text-xs text-lime-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Evolving Skies Booster</span>
+                        <span class="text-orange-400 font-semibold">Premium</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-sky-500/20 rounded border border-sky-500/30 flex items-center justify-center">
+                            <span class="text-xs text-sky-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Moonbreon Alt Art</span>
+                        <span class="text-orange-400 font-semibold">Lunar</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-fuchsia-500/20 rounded border border-fuchsia-500/30 flex items-center justify-center">
+                            <span class="text-xs text-fuchsia-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Shining Magikarp</span>
+                        <span class="text-orange-400 font-semibold">Shiny</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-slate-500/20 rounded border border-slate-500/30 flex items-center justify-center">
+                            <span class="text-xs text-slate-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Crystal Pokemon</span>
+                        <span class="text-orange-400 font-semibold">Crystal</span>
+                    </div>
+                    <div class="flex items-center gap-3 whitespace-nowrap bg-gray-800/50 rounded-lg px-4 py-2">
+                        <div class="w-8 h-8 bg-zinc-500/20 rounded border border-zinc-500/30 flex items-center justify-center">
+                            <span class="text-xs text-zinc-400">★</span>
+                        </div>
+                        <span class="text-sm text-gray-300">Trophy Pikachu</span>
+                        <span class="text-orange-400 font-semibold">Trophy</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Sets -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                    Popular Sets
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Explore the most sought-after card sets by collectors worldwide
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-4 text-center border border-gray-700/50 hover:border-blue-500/50 transition-all cursor-pointer hover:transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <span class="text-red-400 font-bold text-sm">BASE</span>
+                    </div>
+                    <h4 class="text-white font-semibold text-sm">Base Set</h4>
+                    <p class="text-gray-400 text-xs">1998</p>
+                </div>
+                <div class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-4 text-center border border-gray-700/50 hover:border-blue-500/50 transition-all cursor-pointer hover:transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <span class="text-yellow-400 font-bold text-sm">NEO</span>
+                    </div>
+                    <h4 class="text-white font-semibold text-sm">Neo Genesis</h4>
+                    <p class="text-gray-400 text-xs">2000</p>
+                </div>
+                <div class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-4 text-center border border-gray-700/50 hover:border-blue-500/50 transition-all cursor-pointer hover:transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <span class="text-purple-400 font-bold text-sm">SWSH</span>
+                    </div>
+                    <h4 class="text-white font-semibold text-sm">Sword & Shield</h4>
+                    <p class="text-gray-400 text-xs">2020</p>
+                </div>
+                <div class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-4 text-center border border-gray-700/50 hover:border-blue-500/50 transition-all cursor-pointer hover:transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <span class="text-green-400 font-bold text-sm">EX</span>
+                    </div>
+                    <h4 class="text-white font-semibold text-sm">EX Series</h4>
+                    <p class="text-gray-400 text-xs">2003</p>
+                </div>
+                <div class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-4 text-center border border-gray-700/50 hover:border-blue-500/50 transition-all cursor-pointer hover:transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <span class="text-blue-400 font-bold text-sm">XY</span>
+                    </div>
+                    <h4 class="text-white font-semibold text-sm">XY Series</h4>
+                    <p class="text-gray-400 text-xs">2014</p>
+                </div>
+                <div class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-4 text-center border border-gray-700/50 hover:border-blue-500/50 transition-all cursor-pointer hover:transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <span class="text-pink-400 font-bold text-sm">SV</span>
+                    </div>
+                    <h4 class="text-white font-semibold text-sm">Scarlet Violet</h4>
+                    <p class="text-gray-400 text-xs">2023</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                        Frequently Asked Questions
+                    </h2>
+                    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                        Everything you need to know about buying and selling with TCG Vaults
+                    </p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-black/20 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/30 transition-colors">
+                        <button class="flex justify-between items-center w-full text-left" onclick="toggleFaq(this)">
+                            <h3 class="text-lg font-semibold text-white">How do you authenticate cards?</h3>
+                            <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-content hidden mt-4 text-gray-300">
+                            <p>We use a multi-step authentication process including UV light testing, print quality analysis, and comparison with verified authentic cards. Our team has over 10 years of experience in card authentication.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/20 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/30 transition-colors">
+                        <button class="flex justify-between items-center w-full text-left" onclick="toggleFaq(this)">
+                            <h3 class="text-lg font-semibold text-white">What grading companies do you work with?</h3>
+                            <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-content hidden mt-4 text-gray-300">
+                            <p>We primarily work with PSA and BGS, the two most trusted grading companies in the industry. We also accept cards graded by CGC and other reputable companies.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/20 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/30 transition-colors">
+                        <button class="flex justify-between items-center w-full text-left" onclick="toggleFaq(this)">
+                            <h3 class="text-lg font-semibold text-white">How fast is shipping?</h3>
+                            <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-content hidden mt-4 text-gray-300">
+                            <p>Standard shipping takes 2-3 business days. Express shipping is available for next-day delivery. All orders over $100 qualify for free standard shipping.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/20 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/30 transition-colors">
+                        <button class="flex justify-between items-center w-full text-left" onclick="toggleFaq(this)">
+                            <h3 class="text-lg font-semibold text-white">What's your return policy?</h3>
+                            <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-content hidden mt-4 text-gray-300">
+                            <p>We offer a 30-day return policy for all items. Cards must be returned in the same condition as received. Graded cards are final sale unless there's an authenticity issue.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/20 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/30 transition-colors">
+                        <button class="flex justify-between items-center w-full text-left" onclick="toggleFaq(this)">
+                            <h3 class="text-lg font-semibold text-white">Do you buy cards?</h3>
+                            <svg class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-content hidden mt-4 text-gray-300">
+                            <p>Yes! We're always looking to buy high-quality cards and collections. Contact us with photos and details of your cards for a free evaluation and offer.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Grading Guide CTA -->
+    <section class="py-20 bg-black/10 backdrop-blur-sm">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                    New to Card Grading?
+                </h2>
+                <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                    Learn how professional grading works and why it's essential for serious collectors and investors.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Authentication</h3>
+                        <p class="text-gray-400 text-sm">Verify your cards are genuine</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Condition Grading</h3>
+                        <p class="text-gray-400 text-sm">Professional 1-10 condition scoring</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Value Protection</h3>
+                        <p class="text-gray-400 text-sm">Preserve and increase card value</p>
+                    </div>
+                </div>
+                <a href="#" class="btn btn-primary text-lg px-8 py-4 hover:scale-105 transform transition-all duration-300">
+                    Complete Grading Guide
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black/30 backdrop-blur-sm border-t border-gray-800/50 mt-20">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <h3 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-4">
+                        TCG Vaults
+                    </h3>
+                    <p class="text-gray-400 mb-4">
+                        Your trusted source for authentic Pokémon trading cards, graded slabs, and sealed products.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Singles</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Slabs</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Sealed Product</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Refund Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 TCG Vaults. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Infinite parallax background effect
+        document.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight - windowHeight;
+
+            // Calculate infinite scroll progress - continues beyond 1
+            const scrollProgress = scrolled / Math.max(documentHeight, 1);
+
+            // Create infinite darkening effect that continues to get darker
+            // Uses a logarithmic curve for more gradual darkening that never stops
+            const maxOverlay = 0.9; // Maximum darkness (90% overlay)
+            const scrollOverlay = Math.min(
+                1 - Math.exp(-scrollProgress * 2), // Exponential curve for natural darkening
+                maxOverlay
+            );
+
+            // Apply the overlay darkness
+            document.documentElement.style.setProperty('--scroll-overlay', scrollOverlay);
+        });
+
+        // Initialize parallax effect
+        document.documentElement.style.setProperty('--scroll-overlay', '0');
+
+        // FAQ toggle functionality
+        function toggleFaq(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('svg');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Smooth reveal animation on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const heroContent = document.querySelector('.hero-content');
+            const heroImage = document.querySelector('.hero-image-placeholder');
+
+            setTimeout(() => {
+                if (heroContent) {
+                    heroContent.style.opacity = '1';
+                    heroContent.style.transform = 'translateY(0)';
+                }
+            }, 200);
+
+            setTimeout(() => {
+                if (heroImage) {
+                    heroImage.style.opacity = '1';
+                    heroImage.style.transform = 'translateY(0)';
+                }
+            }, 400);
+        });
+    </script>
+</body>
+</html>
