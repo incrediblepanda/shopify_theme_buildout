@@ -220,7 +220,7 @@ shopify-theme/
 - **Accessibility**: ARIA labels and semantic HTML
 - **Clean URLs**: SEO-friendly navigation
 
-## 📋 Required Manual Setup
+## Required Manual Setup
 
 ### Shopify Admin Configuration
 1. **Metafields**: Create product metafields for card details
